@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 require('./env.js');
 
 const token = jwt.sign({
-  username: process.env.TOKEN,
+  token: process.env.TOKEN,
 },
 process.env.TOKEN);
 

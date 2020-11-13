@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const moment = require('moment');
 const { v4: uuid } = require('uuid');
-const { models } = require('../helpers');
+const { models, validation } = require('../helpers');
 
 router.get('/', (req, res) => {
   const valid = validation.validateItem(req.query);
@@ -26,23 +26,25 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const valid = validation.validateNewItem(req.body);
-  if (valid === null) {
-    new models.item(req.body).save().then((item) => {
-      res.status(201).json({
-        status: 201,
-        item,
-      });
-    }).catch((err) => {
-      console.error(err);
-      res.status(500).json({
-        status: 500,
-        message: 'An unknown error occured, we will investigate it as soon as possible',
-      });
+  console.log(req.body);
+  // const valid = validation.validateNewItem(req.body);
+  // if (valid === null) {
+  req.body.uuid = uuid();
+  new models.item(req.body).save().then((item) => {
+    res.status(201).json({
+      status: 201,
+      item,
     });
-  } else {
-    res.status(403).send(valid);
-  }
+  }).catch((err) => {
+    console.error(err);
+    res.status(500).json({
+      status: 500,
+      message: 'An unknown error occured, we will investigate it as soon as possible',
+    });
+  });
+  // } else {
+  //   res.status(403).send(valid);
+  // }
 });
 
 router.put('/', (req, res) => {
@@ -84,6 +86,46 @@ router.delete('/', (req, res) => {
   } else {
     res.status(403).send(valid);
   }
+});
+
+router.post('/:uuid/buy', (req, res) => {
+  models.item.findOne({
+    uuid: req.params.uuid,
+  }, (err, item) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({
+        status: 500,
+        message: 'An unknown error occured, we will investigate it as soon as possible',
+      });
+      return;
+    }
+    if (req.session.email) {
+      models.account.findOneAndUpdate({ email: req.session.email }, {
+        $push: {
+          orders: item.uuid,
+        },
+      }, { new: true }, (err, updatedAccount) => {
+        if (err) {
+          console.error(err);
+          res.status(500).json({
+            status: 500,
+            message: 'An unknown error occured, we will investigate it as soon as possible',
+          });
+          return;
+        }
+        res.status(200).json({
+          status: 200,
+          account: updatedAccount,
+        });
+      });
+    } else {
+      res.status(401).json({
+        status: 401,
+        message: 'Not logged in',
+      });
+    }
+  });
 });
 
 module.exports = router;

@@ -11,6 +11,26 @@ router.get('/whoami', (req, res) => {
   }
 });
 
+router.get('/search', (req, res) => {
+  if (req.query.hasOwnProperty('q')) {
+    models.item.find({
+      name: req.query.q,
+    }, null, {
+      limit: req.query.limit,
+    }).then((items) => {
+      res.status(200).json({
+        status: 200,
+        items,
+      });
+    });
+  } else {
+    res.status(403).json({
+      status: 403,
+      message: 'No query found, use the query parameter \'q\' to set the query',
+    });
+  }
+});
+
 router.post('/signup', (req, res) => {
   const valid = validation.validateSignup(req.body);
   if (valid === null) {
