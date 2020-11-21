@@ -26,25 +26,24 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  console.log(req.body);
-  // const valid = validation.validateNewItem(req.body);
-  // if (valid === null) {
-  req.body.uuid = uuid();
-  new models.item(req.body).save().then((item) => {
-    res.status(201).json({
-      status: 201,
-      item,
+  const valid = validation.validateNewItem(req.body);
+  if (valid === null) {
+    req.body.uuid = uuid();
+    new models.item(req.body).save().then((item) => {
+      res.status(201).json({
+        status: 201,
+        item,
+      });
+    }).catch((err) => {
+      console.error(err);
+      res.status(500).json({
+        status: 500,
+        message: 'An unknown error occured, we will investigate it as soon as possible',
+      });
     });
-  }).catch((err) => {
-    console.error(err);
-    res.status(500).json({
-      status: 500,
-      message: 'An unknown error occured, we will investigate it as soon as possible',
-    });
-  });
-  // } else {
-  //   res.status(403).send(valid);
-  // }
+  } else {
+    res.status(403).send(valid);
+  }
 });
 
 router.put('/', (req, res) => {

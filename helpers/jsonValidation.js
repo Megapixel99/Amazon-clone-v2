@@ -59,7 +59,7 @@ const newItemSchema = {
       minLength: 1,
     },
     price: {
-      type: 'Number',
+      type: 'number',
       minValue: 1,
     },
     currency: {
@@ -71,7 +71,7 @@ const newItemSchema = {
       minLength: 1,
     },
     reviews: {
-      type: 'Array',
+      type: 'array',
     },
   },
   required: ['seller', 'name', 'price', 'currency', 'description', 'reviews'],
@@ -90,7 +90,7 @@ const itemSchema = {
       minLength: 1,
     },
     price: {
-      type: 'Number',
+      type: 'number',
       minValue: 1,
     },
     currency: {
@@ -102,7 +102,7 @@ const itemSchema = {
       minLength: 1,
     },
     reviews: {
-      type: 'Array',
+      type: 'array',
     },
   },
   required: [],
