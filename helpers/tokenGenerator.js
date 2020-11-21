@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
-require('./env.js');
+require('dotenv').config({
+  path: '../.env',
+});
 
 const token = jwt.sign({
   token: process.env.TOKEN,
