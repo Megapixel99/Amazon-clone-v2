@@ -121,6 +121,11 @@ const loginSchema = {
       type: 'string',
       minLength: 10,
     },
+    secret: {
+      type: 'string',
+      maxLength: 6,
+      minLength: 6,
+    },
   },
   required: ['email', 'password'],
   additionalProperties: false,

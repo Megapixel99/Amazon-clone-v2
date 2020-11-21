@@ -20,6 +20,7 @@ const accountSchema = mongoose.Schema({
   },
   address: String,
   payments: Array,
+  secret: String,
 });
 
 const itemSchema = mongoose.Schema({

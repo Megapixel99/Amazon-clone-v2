@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const moment = require('moment');
 const { v4: uuid } = require('uuid');
+const speakeasy = require('speakeasy');
 const { models, validation, bcrypt } = require('../helpers');
 
 router.get('/whoami', (req, res) => {
@@ -91,11 +92,25 @@ router.post('/login', (req, res) => {
   } else if (valid === null) {
     models.account.findOne({
       email: req.body.email,
-    }, { password: 1, _id: 0 }, (err, account) => {
+    }, {
+      password: 1, secret: 1, mfa: 1, _id: 0,
+    }, async (err, account) => {
       if (account) {
         if (bcrypt.compare(req.body.password, account.password)) {
-          req.session.email = req.body.email;
-          res.redirect(301, '/');
+          let verified = true;
+          if (account.mfa === true) {
+            verified = speakeasy.totp.verify({
+              secret: account.secret,
+              encoding: 'base32',
+              token: req.body.secret,
+            });
+          }
+          if (verified) {
+            req.session.email = req.body.email;
+            res.redirect(301, '/');
+          } else {
+            res.status(400).send('Incorrect 2FA code recieved');
+          }
         } else {
           res.status(400).send('Incorrect username or password.');
         }
